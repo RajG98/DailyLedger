@@ -1,6 +1,6 @@
 package com.ledger.backend.security;
 
-import com.ledger.backend.model.Users;
+import com.ledger.backend.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
-    private final Users user;
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
