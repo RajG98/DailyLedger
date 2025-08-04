@@ -1,6 +1,8 @@
 package com.ledger.backend.config;
 
 
+import com.ledger.backend.exception.AppAuthenticationEntryPoint;
+import com.ledger.backend.exception.CustomAccessDeniedHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -38,6 +40,10 @@ public class SecurityConfig {
 
                     authorize.anyRequest().authenticated();
                 })
+                .exceptionHandling(exceptionHandler->
+                        exceptionHandler
+                                .authenticationEntryPoint(new AppAuthenticationEntryPoint())
+                                .accessDeniedHandler(new CustomAccessDeniedHandler()))
                 .sessionManagement(session->session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
