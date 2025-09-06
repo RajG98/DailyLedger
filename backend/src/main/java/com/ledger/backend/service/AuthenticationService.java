@@ -26,6 +26,9 @@ public class AuthenticationService {
         return userRepo.findByEmail(user.getEmail()).orElseThrow(()->new UsernameNotFoundException("User not found!"));
     }
     public User signup(RegisterUser registeredUser){
+
+        if(userRepo.findByEmail(registeredUser.getEmail()).isPresent())
+            return null;
         User user=new User();
         user.setName(registeredUser.getName());
         user.setEmail(registeredUser.getEmail());

@@ -1,5 +1,6 @@
 package com.ledger.backend.controller;
 
+import com.ledger.backend.dto.ApiResponse;
 import com.ledger.backend.dto.JwtResponse;
 import com.ledger.backend.dto.LoginUser;
 import com.ledger.backend.dto.RegisterUser;
@@ -21,16 +22,18 @@ public class AuthenticationController {
     final AuthenticationService authenticationService;
     final JwtService jwtService;
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> authenticate(@RequestBody LoginUser user) {
+    public ResponseEntity<ApiResponse<JwtResponse>> authenticate(@RequestBody LoginUser user) {
         User authenticatedUser = authenticationService.authenticate(user);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         JwtResponse response = new JwtResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"Jwt Token",response));
     }
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody RegisterUser user){
+    public ResponseEntity<ApiResponse<User>> signup(@RequestBody RegisterUser user){
         User registeredUser= authenticationService.signup(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
+        if(registeredUser==null)
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false,"User already exists!",registeredUser));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"User fetched successfully",registeredUser));
     }
 
 }
