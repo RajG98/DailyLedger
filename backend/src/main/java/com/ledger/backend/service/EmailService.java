@@ -19,7 +19,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     String fromEmail;
 
-    public void sendOtpEmail(String to, String otp) {
+    public boolean sendOtpEmail(String to, String otp) {
         try{
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
@@ -27,9 +27,10 @@ public class EmailService {
             message.setSubject("Your OTP Code");
             message.setText("Your OTP is: " + otp + ". It is valid for 5 minutes.");
             mailSender.send(message);
-
+            return true;
         }catch(Exception e){
             log.error("Exception while send email ", e);
+            return false;
         }
     }
 }

@@ -26,13 +26,15 @@ public class AuthenticationController {
         User authenticatedUser = authenticationService.authenticate(user);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         JwtResponse response = new JwtResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"Jwt Token",response));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"JWT token generated",response));
     }
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<User>> signup(@RequestBody RegisterUser user){
+    public ResponseEntity<ApiResponse<?>> signup(@RequestBody RegisterUser user){
+        if (authenticationService.accountExists(user.getEmail())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT) // 409 Conflict
+                    .body(new ApiResponse<>(false,"Email already exists" , "An account with this email already exists."));
+        }
         User registeredUser= authenticationService.signup(user);
-        if(registeredUser==null)
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiResponse<>(false,"User already exists!",registeredUser));
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"User fetched successfully",registeredUser));
     }
 

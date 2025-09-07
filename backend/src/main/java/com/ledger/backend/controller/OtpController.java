@@ -1,5 +1,6 @@
 package com.ledger.backend.controller;
 
+import com.ledger.backend.dto.ApiResponse;
 import com.ledger.backend.repository.OtpStorage;
 import com.ledger.backend.service.EmailService;
 import com.ledger.backend.util.OtpUtil;
@@ -22,20 +23,24 @@ public class OtpController {
     final OtpStorage otpStorage;
 
     @PostMapping("/send")
-    public ResponseEntity<String> sendOtp(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<String>> sendOtp(@RequestParam String email) {
         String otp = OtpUtil.generateOtp(6);
         otpStorage.saveOtp(email, otp);
-            emailService.sendOtpEmail(email, otp);
-        return ResponseEntity.ok("OTP sent to " + email);
+        boolean response=emailService.sendOtpEmail(email, otp);
+        if(!response)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false,"Send OTP Failed","Failed to send otp to: "+ email));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"OTP sent successfully","OTP sent to " + email));
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<ApiResponse<String>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         boolean valid = otpStorage.validateOtp(email, otp);
         if (valid) {
-            return ResponseEntity.ok("OTP is valid");
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"Valid OTP","OTP is valid"));
+
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid or expired OTP");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false,"Invalid OTP","Invalid or expired OTP"));
+
         }
     }
 }
