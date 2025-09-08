@@ -29,17 +29,17 @@ public class OtpController {
         boolean response=emailService.sendOtpEmail(email, otp);
         if(!response)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false,"Send OTP Failed","Failed to send otp to: "+ email));
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"OTP sent successfully","OTP sent to " + email));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"OTP sent to " + email,null));
     }
 
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         boolean valid = otpStorage.validateOtp(email, otp);
         if (valid) {
-            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"Valid OTP","OTP is valid"));
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"OTP is valid",null));
 
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false,"Invalid OTP","Invalid or expired OTP"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false,"Invalid or expired OTP",null));
 
         }
     }

@@ -1,8 +1,8 @@
 package com.ledger.backend.config;
 
 
-import com.ledger.backend.exception.AppAuthenticationEntryPoint;
 import com.ledger.backend.exception.CustomAccessDeniedHandler;
+import com.ledger.backend.exception.CustomAuthenticationEntryPoint;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,7 +42,7 @@ public class SecurityConfig {
                 })
                 .exceptionHandling(exceptionHandler->
                         exceptionHandler
-                                .authenticationEntryPoint(new AppAuthenticationEntryPoint())
+                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                                 .accessDeniedHandler(new CustomAccessDeniedHandler()))
                 .sessionManagement(session->session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

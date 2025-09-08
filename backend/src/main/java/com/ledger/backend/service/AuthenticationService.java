@@ -3,6 +3,7 @@ package com.ledger.backend.service;
 
 import com.ledger.backend.dto.LoginUser;
 import com.ledger.backend.dto.RegisterUser;
+import com.ledger.backend.dto.ResetPassword;
 import com.ledger.backend.model.User;
 import com.ledger.backend.repository.UserRepo;
 import lombok.AccessLevel;
@@ -36,5 +37,11 @@ public class AuthenticationService {
     public boolean accountExists(String email) {
         //return true;
         return userRepo.existsByEmail(email).orElseThrow();
+    }
+
+    public void resetPassword(ResetPassword request) {
+        User user= userRepo.findByEmail(request.getEmail()).orElseThrow(()->new UsernameNotFoundException("User not found!"));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepo.save(user);
     }
 }

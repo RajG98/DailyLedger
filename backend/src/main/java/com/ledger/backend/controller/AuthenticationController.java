@@ -1,9 +1,6 @@
 package com.ledger.backend.controller;
 
-import com.ledger.backend.dto.ApiResponse;
-import com.ledger.backend.dto.JwtResponse;
-import com.ledger.backend.dto.LoginUser;
-import com.ledger.backend.dto.RegisterUser;
+import com.ledger.backend.dto.*;
 import com.ledger.backend.model.User;
 import com.ledger.backend.security.JwtService;
 import com.ledger.backend.service.AuthenticationService;
@@ -29,13 +26,19 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"JWT token generated",response));
     }
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<?>> signup(@RequestBody RegisterUser user){
+    public ResponseEntity<ApiResponse<User>> signup(@RequestBody RegisterUser user){
         if (authenticationService.accountExists(user.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT) // 409 Conflict
-                    .body(new ApiResponse<>(false,"Email already exists" , "An account with this email already exists."));
+                    .body(new ApiResponse<>(false,"An account with this email already exists." , null));
         }
         User registeredUser= authenticationService.signup(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"User fetched successfully",registeredUser));
     }
+    @PutMapping("/reset-password")
+    public ResponseEntity<ApiResponse<User>> resetPassword(@RequestBody ResetPassword request) {
+        authenticationService.resetPassword(request);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"Password changed successfully",null));
+    }
+
 
 }
