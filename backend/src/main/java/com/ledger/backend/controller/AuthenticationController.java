@@ -19,11 +19,15 @@ public class AuthenticationController {
     final AuthenticationService authenticationService;
     final JwtService jwtService;
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<JwtResponse>> authenticate(@RequestBody LoginUser user) {
+    public ResponseEntity<ApiResponse<LoginResponse>> authenticate(@RequestBody LoginUser user) {
         User authenticatedUser = authenticationService.authenticate(user);
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        JwtResponse response = new JwtResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(true,"JWT token generated",response));
+        JwtResponse jwt = new JwtResponse().setToken(jwtToken).setExpiresIn(jwtService.getExpirationTime());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(true, "JWT token generated",
+                        new LoginResponse(jwt, authenticatedUser.getId(), authenticatedUser.getName(),
+                                authenticatedUser.getEmail())));
     }
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<User>> signup(@RequestBody RegisterUser user){
@@ -32,7 +36,7 @@ public class AuthenticationController {
                     .body(new ApiResponse<>(false,"An account with this email already exists." , null));
         }
         User registeredUser= authenticationService.signup(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true,"User fetched successfully",registeredUser));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "User created successfully", registeredUser));
     }
     @PutMapping("/reset-password")
     public ResponseEntity<ApiResponse<User>> resetPassword(@RequestBody ResetPassword request) {

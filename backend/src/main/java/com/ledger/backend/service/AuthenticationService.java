@@ -4,6 +4,7 @@ package com.ledger.backend.service;
 import com.ledger.backend.dto.LoginUser;
 import com.ledger.backend.dto.RegisterUser;
 import com.ledger.backend.dto.ResetPassword;
+import com.ledger.backend.exception.AccountNotFoundException;
 import com.ledger.backend.model.User;
 import com.ledger.backend.repository.UserRepo;
 import lombok.AccessLevel;
@@ -11,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class AuthenticationService {
     final PasswordEncoder passwordEncoder;
     public User authenticate(LoginUser user) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(),user.getPassword()));
-        return userRepo.findByEmail(user.getEmail()).orElseThrow(()->new UsernameNotFoundException("User not found!"));
+        return userRepo.findByEmail(user.getEmail()).orElseThrow(() -> new AccountNotFoundException(user.getEmail()));
     }
     public User signup(RegisterUser registeredUser){
         User user=new User();
@@ -35,12 +35,11 @@ public class AuthenticationService {
     }
 
     public boolean accountExists(String email) {
-        //return true;
         return userRepo.existsByEmail(email).orElseThrow();
     }
 
     public void resetPassword(ResetPassword request) {
-        User user= userRepo.findByEmail(request.getEmail()).orElseThrow(()->new UsernameNotFoundException("User not found!"));
+        User user = userRepo.findByEmail(request.getEmail()).orElseThrow(() -> new AccountNotFoundException(request.getEmail()));
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepo.save(user);
     }

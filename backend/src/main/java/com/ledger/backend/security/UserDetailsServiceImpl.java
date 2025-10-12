@@ -1,6 +1,6 @@
 package com.ledger.backend.security;
 
-import com.ledger.backend.model.User;
+
 import com.ledger.backend.repository.UserRepo;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

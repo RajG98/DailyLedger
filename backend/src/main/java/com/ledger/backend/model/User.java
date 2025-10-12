@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Data
@@ -26,7 +25,7 @@ public class User implements UserDetails {
     private String name;
     @Column(nullable = false, unique = true,length = 100)
     private String email;
-    @Column(nullable = false,length = 50)
+    @Column(nullable = false)
     private String password;
     @CreationTimestamp
     @Column(name = "created_at",updatable = false)
