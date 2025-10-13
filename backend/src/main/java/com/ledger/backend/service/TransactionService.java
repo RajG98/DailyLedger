@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -95,16 +96,16 @@ public class TransactionService {
         }
         return transactionRepository.save(existing);
     }
-//
-//    // ✅ Delete a transaction for a user
-//    public void deleteTransactionForUser(String userId, String transactionId) {
-//        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
-//                .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
-//        transactionRepository.delete(existing);
-//    }
-//
-//    // ✅ Filter transactions for a user by date range
-//    public List<Transaction> getTransactionsByUserIdAndDateRange(String userId, LocalDateTime start, LocalDateTime end) {
-//        return transactionRepository.findByAccountUserIdAndTimestampBetween(userId, start, end);
-//    }
+
+    // ✅ Delete a transaction for a user
+    public void deleteTransactionForUser(String userId, String transactionId) {
+        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+        transactionRepository.delete(existing);
+    }
+
+    // ✅ Filter transactions for a user by date range
+    public List<Transaction> getTransactionsByUserIdAndDateRange(String userId, LocalDateTime start, LocalDateTime end) {
+        return transactionRepository.findByUserIdAndTimestampBetween(userId, start, end);
+    }
 }

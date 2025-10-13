@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,8 +23,9 @@ public class Transaction {
     private String titleDes;
     @Column(nullable = false)
     private String amount;
-    @Column(nullable = false,updatable = false)
-    private String time;
+    @CreationTimestamp
+    @Column(name = "time_stamp", nullable = false, updatable = false)
+    private LocalDateTime timestamp;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;
@@ -39,10 +42,7 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @PrePersist
-    public void onCreate(){
-        this.time=java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a dd/MM/yyyy"));
-    }
+
     public enum Type{
         EXPENSE,INCOME
     }
