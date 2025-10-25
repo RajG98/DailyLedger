@@ -1,6 +1,7 @@
 package com.ledger.backend.controller;
 
 import com.ledger.backend.dto.ApiResponse;
+import com.ledger.backend.dto.TransactionResponse;
 import com.ledger.backend.model.Transaction;
 import com.ledger.backend.service.TransactionService;
 import lombok.AccessLevel;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,19 +24,24 @@ public class TransactionController {
     final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Transaction>>> getAllTransactionsByUser(@PathVariable String userId,
-                                                                                   @RequestParam(required = false)
+    public ResponseEntity<ApiResponse<List<TransactionResponse>>> getAllTransactionsByUser(@PathVariable String userId,
+                                                                                           @RequestParam(required = false)
                                                                                    @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDateTime startDate,
-                                                                                   @RequestParam(required = false)
+                                                                                           @RequestParam(required = false)
                                                                                    @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDateTime endDate) {
         List<Transaction> transactionsList = null;
+        List<TransactionResponse> transactionResponses=new ArrayList<>();
         if (startDate == null || endDate == null)
             transactionsList = transactionService.getAllTransactionsByUser(userId);
         else transactionsList = transactionService.getTransactionsByUserIdAndDateRange(userId, startDate, endDate);
         for (Transaction transaction : transactionsList) {
-            transaction.setTimestamp(LocalDateTime.parse(LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a dd/MM/yyyy"))));
+            transactionResponses.add(new TransactionResponse(
+               transaction.getId(),transaction.getTitleDes(),transaction.getAmount(),
+                    transaction.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a dd/MM/yyyy")),
+                    transaction.getType().toString()
+            ));
         }
-        return new ResponseEntity<>(new ApiResponse<>(true, "transactions fetched successfully", transactionsList), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(true, "transactions fetched successfully", transactionResponses), HttpStatus.OK);
     }
 
     @PostMapping
