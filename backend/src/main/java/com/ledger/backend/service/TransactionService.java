@@ -34,7 +34,7 @@ public class TransactionService {
     final CategoryService categoryService;
 
     public Transaction createTransactionForUser(String userId, Transaction transaction) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(UUID.fromString(userId))
                 .orElseThrow(() -> new AccountNotFoundException(userId));
         transaction.setUser(user);
         Account acc = accountRepo.findById(transaction.getAccount().getId()).orElse(null);
@@ -67,20 +67,20 @@ public class TransactionService {
     }
 
     public List<Transaction> getAllTransactionsByUser(String userId) {
-        return transactionRepository.findByAccountUserId(userId);
+        return transactionRepository.findByAccountUserId(UUID.fromString(userId));
     }
 
     public Transaction getTransactionByIdForUser(String userId, String transactionId) {
-        return transactionRepository.findByIdAndAccountUserId(transactionId, userId).orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+        return transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId)).orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
     }
 
     // ✅ Update a transaction for a user
     public Transaction updateTransactionForUser(String userId, String transactionId, Transaction updatedTransaction) {
-        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
+        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId))
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
 
         Account acc = accountRepo.findById(updatedTransaction.getAccount().getId())
-                .orElseThrow(() -> new AccountNotFoundException(updatedTransaction.getAccount().getId()));
+                .orElseThrow(() -> new AccountNotFoundException(String.valueOf(updatedTransaction.getAccount().getId())));
         existing.setAccount(acc);
         existing.setAmount(updatedTransaction.getAmount());
         existing.setType(updatedTransaction.getType());
@@ -99,13 +99,13 @@ public class TransactionService {
 
     // ✅ Delete a transaction for a user
     public void deleteTransactionForUser(String userId, String transactionId) {
-        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
+        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId))
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
         transactionRepository.delete(existing);
     }
 
     // ✅ Filter transactions for a user by date range
     public List<Transaction> getTransactionsByUserIdAndDateRange(String userId, LocalDateTime start, LocalDateTime end) {
-        return transactionRepository.findByUserIdAndTimestampBetween(userId, start, end);
+        return transactionRepository.findByUserIdAndTimestampBetween(UUID.fromString(userId), start, end);
     }
 }

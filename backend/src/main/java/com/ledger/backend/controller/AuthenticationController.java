@@ -26,7 +26,7 @@ public class AuthenticationController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(true, "JWT token generated",
-                        new LoginResponse(jwt, authenticatedUser.getId(), authenticatedUser.getName(),
+                        new LoginResponse(jwt, String.valueOf(authenticatedUser.getId()), authenticatedUser.getName(),
                                 authenticatedUser.getEmail())));
     }
     @PostMapping("/signup")

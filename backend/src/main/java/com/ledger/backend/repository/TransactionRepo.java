@@ -7,11 +7,12 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface TransactionRepo extends JpaRepository<Transaction,String> {
-    List<Transaction> findByAccountUserId(String userId);
+    List<Transaction> findByAccountUserId(UUID userId);
 
-    List<Transaction> findByUserIdAndTimestampBetween(String userId, LocalDateTime start, LocalDateTime end);
-    Optional<Transaction> findByIdAndAccountUserId(String transactionId, String userId);
+    List<Transaction> findByUserIdAndTimestampBetween(UUID userId, LocalDateTime start, LocalDateTime end);
+    Optional<Transaction> findByIdAndAccountUserId(String transactionId, UUID userId);
 }

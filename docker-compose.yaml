@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: ledger
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ledgernet
+
+  app:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      POSTGRES_URL: jdbc:postgresql://db:5432/ledger
+      POSTGRES_USERNAME: admin
+      POSTGRES_PASSWORD: secret
+      JWT_SECRET_KEY: 821c8d3583e049a7c62f46b83f5dc242197d3b7a45de7b9019321d3d3b87a4f5
+      MAIL_USERNAME: rajarshig007@gmail.com
+      MAIL_PASSWORD: "ntph vtjx wixy mhui"
+    ports:
+      - "8080:8080"
+    networks:
+      - ledgernet
+
+networks:
+  ledgernet:
+volumes:
+  container-volume:
