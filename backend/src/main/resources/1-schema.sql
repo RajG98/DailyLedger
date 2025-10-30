@@ -5,7 +5,7 @@ create EXTENSION IF NOT EXISTS "uuid-ossp";
 -- USERS TABLE
 -- ==========================================
 create table if not exists users (
-    id uuid primary key default uuid_generate_v4(),
+    id TEXT primary key default uuid_generate_v4(),
     name TEXT NOT NULL,
     email text not null unique,
     password text not null,
@@ -17,22 +17,22 @@ create table if not exists users (
 -- ACCOUNT TABLE
 -- ==========================================
 create table if not exists accounts (
-    account_id uuid primary key default uuid_generate_v4(),
+    account_id TEXT primary key default uuid_generate_v4(),
     title text not null,
-    amount integer not null,
-    user_id uuid not null,
+    amount text not null,
+    user_id TEXT not null,
     foreign key (user_id) references users(id) on delete cascade
 );
 
 -- ==========================================
 -- CATEGORY TABLE
 -- ==========================================
-create sequence IF NOT EXISTS category_id_seq START 1;
+create sequence IF NOT EXISTS category_id_seq START 10;
 
 create table if not exists categories (
     category_id int primary key default nextval('category_id_seq'),
     name TEXT NOT NULL,
-    user_id uuid ,
+    user_id TEXT ,
     foreign key (user_id) references users(id) on delete cascade
 );
 
@@ -45,8 +45,8 @@ create table if not exists transactions (
     amount text not null,
     time_stamp timestamp not null default now(),
     type text not null check (type in ('EXPENSE', 'INCOME')),
-    account_id uuid not null,
-    user_id uuid not null,
+    account_id TEXT not null,
+    user_id TEXT not null,
     foreign key (account_id) references accounts(account_id) on delete cascade,
     foreign key (user_id) references users(id) on delete cascade
 );

@@ -1,5 +1,6 @@
 package com.ledger.backend.service;
 
+import com.ledger.backend.dto.TransactionRequest;
 import com.ledger.backend.exception.AccountNotFoundException;
 import com.ledger.backend.exception.CategoryNotFoundException;
 import com.ledger.backend.exception.TransactionNotFoundException;
@@ -15,10 +16,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,34 +33,45 @@ public class TransactionService {
     final UserRepo userRepository;
     final CategoryRepo categoryRepository;
     final AccountRepo accountRepo;
-    final AccountService accountService;
+    //final AccountService accountService;
     final CategoryService categoryService;
 
-    public Transaction createTransactionForUser(String userId, Transaction transaction) {
-        User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new AccountNotFoundException(userId));
+    @Transactional
+    public Transaction createTransactionForUser( TransactionRequest request) {
+        Transaction transaction= new Transaction();
+        transaction.setAmount(request.getAmount());
+        transaction.setType(Transaction.Type.valueOf(request.getType()));
+        transaction.setTitleDes(request.getTitleDes());
+        // 1. Find User
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AccountNotFoundException(request.getUserId()));
         transaction.setUser(user);
-        Account acc = accountRepo.findById(transaction.getAccount().getId()).orElse(null);
-        if (acc == null) {
-            Account account = accountService.addAccount(transaction.getAccount());
-            transaction.setAccount(account);
+        int money;
+        if(request.getType().equalsIgnoreCase("EXPENSE"))
+            money= -Integer.parseInt(request.getAmount());
+        else money = Integer.parseInt(request.getAmount());
+        // 2. Handle Account
+        int finalMoney = money;
+        Account account = accountRepo.findById(request.getAccountId())
+                .orElseThrow(()->new AccountNotFoundException(request.getAccountId()));
+        account.setAmount(account.getAmount()+finalMoney);
+
+        transaction.setAccount(account);
+
+        // 3. Handle Categories
+        if (request.getCategories() != null && !request.getCategories().isEmpty()) {
+            Set<Category> resolvedCategories = request.getCategories().stream()
+                    .map(cat -> categoryRepository.findByName(cat.getName())
+                            .orElseGet(() -> categoryService.addCategory(new Category(cat.getName()))))
+                    .collect(Collectors.toSet());
+            transaction.setCategories(resolvedCategories);
         }
-        if (transaction.getCategories() != null) {
-            Set<Category> categories = new HashSet<>();
-            for (Category cat : transaction.getCategories()) {
-                Category category = categoryRepository.findById(cat.getId())
-                        .orElse(null);
-                if (category == null) {
-                    Category c = categoryService.addCategory(cat);
-                    categories.add(c);
-                }
-            }
-            if (!categories.isEmpty()) transaction.setCategories(categories);
-        }
-        Transaction saved = transactionRepository.save(transaction);
-        String txnId = generateTransactionId();
-        saved.setId(txnId);
-        return transactionRepository.save(saved);
+
+        // 4. Generate custom transaction ID (if required)
+        transaction.setId(generateTransactionId());
+
+        // 5. Save once
+        return transactionRepository.save(transaction);
     }
 
     private String generateTransactionId() {
@@ -67,16 +81,16 @@ public class TransactionService {
     }
 
     public List<Transaction> getAllTransactionsByUser(String userId) {
-        return transactionRepository.findByAccountUserId(UUID.fromString(userId));
+        return transactionRepository.findByAccountUserId(userId);
     }
 
     public Transaction getTransactionByIdForUser(String userId, String transactionId) {
-        return transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId)).orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+        return transactionRepository.findByIdAndAccountUserId(transactionId, userId).orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
     }
 
     // ✅ Update a transaction for a user
     public Transaction updateTransactionForUser(String userId, String transactionId, Transaction updatedTransaction) {
-        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId))
+        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
 
         Account acc = accountRepo.findById(updatedTransaction.getAccount().getId())
@@ -99,13 +113,13 @@ public class TransactionService {
 
     // ✅ Delete a transaction for a user
     public void deleteTransactionForUser(String userId, String transactionId) {
-        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, UUID.fromString(userId))
+        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
         transactionRepository.delete(existing);
     }
 
     // ✅ Filter transactions for a user by date range
     public List<Transaction> getTransactionsByUserIdAndDateRange(String userId, LocalDateTime start, LocalDateTime end) {
-        return transactionRepository.findByUserIdAndTimestampBetween(UUID.fromString(userId), start, end);
+        return transactionRepository.findByUserIdAndTimestampBetween(userId, start, end);
     }
 }

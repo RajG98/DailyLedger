@@ -1,6 +1,7 @@
 package com.ledger.backend.controller;
 
 import com.ledger.backend.dto.ApiResponse;
+import com.ledger.backend.dto.TransactionRequest;
 import com.ledger.backend.dto.TransactionResponse;
 import com.ledger.backend.model.Transaction;
 import com.ledger.backend.service.TransactionService;
@@ -45,20 +46,24 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Transaction>> createTransaction(@PathVariable String userId, @RequestBody Transaction request) {
-        Transaction created = transactionService.createTransactionForUser(userId, request);
+    public ResponseEntity<ApiResponse<Transaction>> createTransaction(@RequestBody TransactionRequest request) {
+        Transaction created = transactionService.createTransactionForUser(request);
         return new ResponseEntity<>(new ApiResponse<>(true, "transaction saved", created), HttpStatus.CREATED);
     }
 
     // ✅ Get transaction by ID for a user
     @GetMapping("/{transactionId}")
-    public ResponseEntity<ApiResponse<Transaction>> getTransactionById(
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransactionById(
             @PathVariable String userId,
             @PathVariable String transactionId
     ) {
         Transaction transaction = transactionService.getTransactionByIdForUser(userId, transactionId);
-        transaction.setTimestamp(LocalDateTime.parse(LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a dd/MM/yyyy"))));
-        return new ResponseEntity<>(new ApiResponse<>(true, "transaction found", transaction), HttpStatus.OK);
+        TransactionResponse response=new TransactionResponse(
+                transaction.getId(),transaction.getTitleDes(),transaction.getAmount(),
+                transaction.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a dd/MM/yyyy")),
+                transaction.getType().toString()
+        );
+        return new ResponseEntity<>(new ApiResponse<>(true, "transaction found", response), HttpStatus.OK);
     }
 
     @PutMapping("/{transactionId}")
