@@ -37,14 +37,14 @@ public class TransactionService {
     final CategoryService categoryService;
 
     @Transactional
-    public Transaction createTransactionForUser( TransactionRequest request) {
+    public Transaction createTransactionForUser(String userId, TransactionRequest request) {
         Transaction transaction= new Transaction();
         transaction.setAmount(request.getAmount());
         transaction.setType(Transaction.Type.valueOf(request.getType()));
         transaction.setTitleDes(request.getTitleDes());
         // 1. Find User
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new AccountNotFoundException(request.getUserId()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AccountNotFoundException(userId));
         transaction.setUser(user);
         int money;
         if(request.getType().equalsIgnoreCase("EXPENSE"))
@@ -54,7 +54,7 @@ public class TransactionService {
         int finalMoney = money;
         Account account = accountRepo.findById(request.getAccountId())
                 .orElseThrow(()->new AccountNotFoundException(request.getAccountId()));
-        account.setAmount(account.getAmount()+finalMoney);
+        account.setAmount(String.valueOf(Integer.parseInt(account.getAmount())+finalMoney));
 
         transaction.setAccount(account);
 
@@ -62,7 +62,7 @@ public class TransactionService {
         if (request.getCategories() != null && !request.getCategories().isEmpty()) {
             Set<Category> resolvedCategories = request.getCategories().stream()
                     .map(cat -> categoryRepository.findByName(cat.getName())
-                            .orElseGet(() -> categoryService.addCategory(new Category(cat.getName()))))
+                            .orElseGet(() -> categoryService.addCategory(new Category(cat.getName()),userId)))
                     .collect(Collectors.toSet());
             transaction.setCategories(resolvedCategories);
         }
@@ -89,26 +89,53 @@ public class TransactionService {
     }
 
     // ✅ Update a transaction for a user
-    public Transaction updateTransactionForUser(String userId, String transactionId, Transaction updatedTransaction) {
-        Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
+    public Transaction updateTransactionForUser(String userId, String transactionId, TransactionRequest request) {
+        Transaction transaction = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
 
-        Account acc = accountRepo.findById(updatedTransaction.getAccount().getId())
-                .orElseThrow(() -> new AccountNotFoundException(String.valueOf(updatedTransaction.getAccount().getId())));
-        existing.setAccount(acc);
-        existing.setAmount(updatedTransaction.getAmount());
-        existing.setType(updatedTransaction.getType());
-        existing.setTitleDes(updatedTransaction.getTitleDes());
-        if (updatedTransaction.getCategories() != null) {
-            Set<Category> categories = new HashSet<>();
-            for (Category cat : updatedTransaction.getCategories()) {
-                Category existingCategory = categoryRepository.findById(cat.getId())
-                        .orElseThrow(() -> new CategoryNotFoundException(cat.getId()));
-                categories.add(existingCategory);
-            }
-            existing.setCategories(categories);
+        transaction.setType(Transaction.Type.valueOf(request.getType()));
+        transaction.setTitleDes(request.getTitleDes());
+
+
+        Account account = accountRepo.findById(request.getAccountId())
+                .orElseThrow(()->new AccountNotFoundException(request.getAccountId()));
+
+        // 3. Parse amounts safely
+        int oldAmount = Integer.parseInt(transaction.getAmount());
+        int newAmount = Integer.parseInt(request.getAmount());
+        int balance = Integer.parseInt(account.getAmount());
+
+        // 4. Revert previous transaction effect first
+        if (transaction.getType().toString().equalsIgnoreCase("EXPENSE")) {
+            balance += oldAmount; // add back expense
+        } else {
+            balance -= oldAmount; // remove previous income
         }
-        return transactionRepository.save(existing);
+
+        // 5. Apply new transaction
+        if (request.getType().equalsIgnoreCase("EXPENSE")) {
+            balance -= newAmount;
+        } else {
+            balance += newAmount;
+        }
+
+        account.setAmount(String.valueOf(balance));
+        transaction.setAmount(request.getAmount());
+        accountRepo.save(account);
+
+        transaction.setAccount(account);
+
+        // 3. Handle Categories
+        if (request.getCategories() != null && !request.getCategories().isEmpty()) {
+            Set<Category> resolvedCategories = request.getCategories().stream()
+                    .map(cat -> categoryRepository.findByName(cat.getName())
+                            .orElseGet(() -> categoryService.addCategory(new Category(cat.getName()),userId)))
+                    .collect(Collectors.toSet());
+            transaction.setCategories(resolvedCategories);
+        }
+
+        // 5. Save once
+        return transactionRepository.save(transaction);
     }
 
     // ✅ Delete a transaction for a user

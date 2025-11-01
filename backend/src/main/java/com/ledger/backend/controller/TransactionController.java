@@ -46,8 +46,8 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Transaction>> createTransaction(@RequestBody TransactionRequest request) {
-        Transaction created = transactionService.createTransactionForUser(request);
+    public ResponseEntity<ApiResponse<Transaction>> createTransaction(@PathVariable String userId,@RequestBody TransactionRequest request) {
+        Transaction created = transactionService.createTransactionForUser(userId,request);
         return new ResponseEntity<>(new ApiResponse<>(true, "transaction saved", created), HttpStatus.CREATED);
     }
 
@@ -70,12 +70,12 @@ public class TransactionController {
     public ResponseEntity<ApiResponse<Transaction>> updateTransactionById(
             @PathVariable String userId,
             @PathVariable String transactionId,
-            @RequestBody Transaction updatedTransaction) {
+            @RequestBody TransactionRequest updatedTransaction) {
         Transaction transaction = transactionService.updateTransactionForUser(userId, transactionId, updatedTransaction);
         return new ResponseEntity<>(new ApiResponse<>(true, "transaction updated", transaction), HttpStatus.OK);
     }
 
-    @DeleteMapping("/transactionId")
+    @DeleteMapping("/{transactionId}")
     public ResponseEntity<ApiResponse<Transaction>> deleteTransactionById(@PathVariable String userId, @PathVariable String transactionId) {
         Transaction transaction = transactionService.getTransactionByIdForUser(userId, transactionId);
         if (transaction != null) transactionService.deleteTransactionForUser(userId, transactionId);

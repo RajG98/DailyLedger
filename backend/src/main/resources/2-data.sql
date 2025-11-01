@@ -26,7 +26,7 @@ values
 (1, 'Food', null),
 (2, 'Shopping', null),
 (3, 'Travel', null),
-(4, 'Salary', 'a6631f83-22c1-4ad6-a5b4-6d488efda471')
+(4, 'Salary', null)
 ON CONFLICT (category_id) DO NOTHING;
 
 -- 4️⃣ TRANSACTION TABLE

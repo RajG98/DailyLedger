@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Category {
     @Id
     @Column(name = "category_id",updatable = false)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
     @ManyToOne
@@ -23,4 +23,5 @@ public class Category {
     public Category(String name) {
         this.name=name;
     }
+
 }

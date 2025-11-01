@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TransactionRequest {
-    private String userId;
     private String titleDes;
     private String amount;
     private String timestamp;
