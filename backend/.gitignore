@@ -35,3 +35,5 @@ build/
 app.log
 /.mvn/
 /.sonarlint/
+pom.xml
+!**/src/test/**/resources/application.properties
