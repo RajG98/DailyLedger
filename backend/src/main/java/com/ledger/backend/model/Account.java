@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,9 +22,14 @@ public class Account {
     private String id;
     private String title;
     private String amount;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "account")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Transaction> transaction;
 
     public Account(String name, int finalMoney) {
         this.title=name;

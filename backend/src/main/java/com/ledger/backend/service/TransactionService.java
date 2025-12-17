@@ -142,6 +142,25 @@ public class TransactionService {
     public void deleteTransactionForUser(String userId, String transactionId) {
         Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
                 .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+        Account account = accountRepo.findById(existing.getAccount().getId())
+                .orElseThrow(()->new AccountNotFoundException(existing.getAccount().getId()));
+        // 3. Parse amounts safely
+        int oldAmount = Integer.parseInt(existing.getAmount());
+
+        int balance = Integer.parseInt(account.getAmount());
+
+        // 4. Revert previous transaction effect first
+        if (existing.getType().toString().equalsIgnoreCase("EXPENSE")) {
+            balance += oldAmount; // add back expense
+        } else {
+            balance -= oldAmount; // remove previous income
+        }
+
+
+        account.setAmount(String.valueOf(balance));
+        accountRepo.save(account);
+
+
         transactionRepository.delete(existing);
     }
 

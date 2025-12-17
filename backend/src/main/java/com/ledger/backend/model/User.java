@@ -34,6 +34,8 @@ public class User implements UserDetails {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private String updatedAt;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Account> account;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

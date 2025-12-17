@@ -13,5 +13,4 @@ import lombok.experimental.FieldDefaults;
 public class AccountRequest {
     private String title;
     private String amount;
-    private String userId;
 }
