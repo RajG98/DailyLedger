@@ -1,5 +1,6 @@
 package com.ledger.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +32,7 @@ public class Transaction {
     private Type type;
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @JsonBackReference
     private Account account;
     @ManyToMany
     @JoinTable(
@@ -41,6 +43,7 @@ public class Transaction {
     private Set<Category> categories = new HashSet<>();// e.g., "Food", "Shopping", "Travel"
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     public enum Type{

@@ -2,7 +2,7 @@ package com.ledger.backend.controller;
 
 import com.ledger.backend.dto.AccountRequest;
 import com.ledger.backend.dto.ApiResponse;
-import com.ledger.backend.dto.TransactionRequest;
+import com.ledger.backend.dto.TransactionResponse;
 import com.ledger.backend.model.Account;
 import com.ledger.backend.model.Transaction;
 import com.ledger.backend.service.AccountService;
@@ -25,6 +25,15 @@ public class AccountController {
     public ResponseEntity<ApiResponse<List<Account>>> getAllAccounts(@PathVariable String userId){
         List<Account> accounts= accountService.getAccounts(userId);
         return new ResponseEntity<>(new ApiResponse<>(true,"accounts fetched successfully",accounts), HttpStatus.OK);
+    }
+    @GetMapping("/{accountId}")
+    public ResponseEntity<ApiResponse<Account>> getAccountIdForUser(
+            @PathVariable String userId,
+            @PathVariable String accountId
+    ) {
+        Account account = accountService.getAccountByIdForUser(userId, accountId);
+
+        return new ResponseEntity<>(new ApiResponse<>(true, "account found", account), HttpStatus.OK);
     }
     @PostMapping
     public ResponseEntity<ApiResponse<Account>> createAccount(@PathVariable String userId, @RequestBody AccountRequest request) {
