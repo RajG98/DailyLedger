@@ -1,8 +1,7 @@
 package com.ledger.backend.service;
 
-import com.ledger.backend.exception.TransactionNotFoundException;
+import com.ledger.backend.dto.UserRequest;
 import com.ledger.backend.exception.UserNotFoundException;
-import com.ledger.backend.model.Transaction;
 import com.ledger.backend.model.User;
 import com.ledger.backend.repository.UserRepo;
 import lombok.AccessLevel;
@@ -19,10 +18,11 @@ public class UserService {
         return userRepo.findById(userId).orElseThrow(()->new UserNotFoundException(userId));
     }
 
-    public User updateUser(String userId, User updatedUser) {
+    public User updateUser(String userId, UserRequest updatedUser) {
         User user = userRepo.findById(userId).orElseThrow(()->new UserNotFoundException(userId));
         user.setName(updatedUser.getName());
         user.setEmail(updatedUser.getEmail());
+        user.setPassword(updatedUser.getPassword());
         return userRepo.save(user);
     }
 
