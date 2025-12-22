@@ -23,10 +23,10 @@ ON CONFLICT (account_id) DO NOTHING;
 -- 3️⃣ CATEGORY TABLE
 insert into categories (category_id, name, user_id)
 values
-(1, 'Food', null),
-(2, 'Shopping', null),
-(3, 'Travel', null),
-(4, 'Salary', null)
+('1', 'Food', null),
+('2', 'Shopping', null),
+('3', 'Travel', null),
+('4', 'Salary', null)
 ON CONFLICT (category_id) DO NOTHING;
 
 -- 4️⃣ TRANSACTION TABLE
@@ -41,10 +41,10 @@ ON CONFLICT (txn_id) DO NOTHING;
 -- 5️⃣ TRANSACTION_CATEGORY MAPPING TABLE
 insert into transaction_category (transaction_id, category_id)
 values
-('txn-001', 1), -- Food
-('txn-002', 2), -- Shopping
-('txn-003', 4), -- Salary
-('txn-004', 3) -- Travel
+('txn-001', '1'), -- Food
+('txn-002', '2'), -- Shopping
+('txn-003', '4'), -- Salary
+('txn-004', '3') -- Travel
 ON CONFLICT (transaction_id, category_id) DO NOTHING;
 
 commit;

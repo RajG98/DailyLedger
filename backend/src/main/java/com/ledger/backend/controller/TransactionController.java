@@ -77,8 +77,7 @@ public class TransactionController {
 
     @DeleteMapping("/{transactionId}")
     public ResponseEntity<ApiResponse<Transaction>> deleteTransactionById(@PathVariable String userId, @PathVariable String transactionId) {
-        Transaction transaction = transactionService.getTransactionByIdForUser(userId, transactionId);
-        if (transaction != null) transactionService.deleteTransactionForUser(userId, transactionId);
+        transactionService.deleteTransactionForUser(userId, transactionId);
         return new ResponseEntity<>(new ApiResponse<>(true, "transaction deleted", null), HttpStatus.NO_CONTENT);
     }
 

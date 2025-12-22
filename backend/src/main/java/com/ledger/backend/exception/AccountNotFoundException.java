@@ -1,8 +1,8 @@
 package com.ledger.backend.exception;
 
 public class AccountNotFoundException extends RuntimeException {
-    public AccountNotFoundException(String userId) {
+    public AccountNotFoundException(String accountId) {
 
-        super("User Id: " + userId + ", not found");
+        super("Account Id: " + accountId + ", not found");
     }
 }

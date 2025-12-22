@@ -1,5 +1,6 @@
 package com.ledger.backend.service;
 
+import com.ledger.backend.exception.CategoryNotFoundException;
 import com.ledger.backend.model.Category;
 import com.ledger.backend.model.User;
 import com.ledger.backend.repository.CategoryRepo;
@@ -23,7 +24,17 @@ public class CategoryService {
         return categoryRepo.save(cat);
     }
 
+    public Category getCategoryById(String userId, String categoryId) {
+        return categoryRepo.findByIdAndUserId(categoryId, userId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
+    }
+
+
     public List<Category> getAllCategories(String userId) {
         return categoryRepo.findAllByUserId(userId);
+    }
+
+    public void deleteCategoryForUser(String userId, String categoryId) {
+        Category category = categoryRepo.findByIdAndUserId(categoryId, userId).orElseThrow(() -> new CategoryNotFoundException(categoryId));
+        categoryRepo.delete(category);
     }
 }

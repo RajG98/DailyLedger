@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,4 +25,21 @@ public class CategoryController {
         List<Category> categories = categoryService.getAllCategories(userId);
         return new ResponseEntity<>(new ApiResponse<>(true, "categories fetched successfully", categories), HttpStatus.OK);
     }
+
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<ApiResponse<Category>> getTransactionById(
+            @PathVariable String userId,
+            @PathVariable String categoryId
+    ) {
+        Category category = categoryService.getCategoryById(userId, categoryId);
+
+        return new ResponseEntity<>(new ApiResponse<>(true, "Category found", category), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<ApiResponse<Category>> deleteTransactionById(@PathVariable String userId, @PathVariable String categoryId) {
+        categoryService.deleteCategoryForUser(userId, categoryId);
+        return new ResponseEntity<>(new ApiResponse<>(true, "transaction deleted", null), HttpStatus.NO_CONTENT);
+    }
+
 }

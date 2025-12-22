@@ -2,7 +2,6 @@ package com.ledger.backend.service;
 
 import com.ledger.backend.dto.TransactionRequest;
 import com.ledger.backend.exception.AccountNotFoundException;
-import com.ledger.backend.exception.CategoryNotFoundException;
 import com.ledger.backend.exception.TransactionNotFoundException;
 import com.ledger.backend.model.Account;
 import com.ledger.backend.model.Category;
@@ -20,7 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,13 +87,13 @@ public class TransactionService {
     }
 
     public Transaction getTransactionByIdForUser(String userId, String transactionId) {
-        return transactionRepository.findByIdAndAccountUserId(transactionId, userId).orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+        return transactionRepository.findByIdAndAccountUserId(transactionId, userId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
     }
 
     // ✅ Update a transaction for a user
     public Transaction updateTransactionForUser(String userId, String transactionId, TransactionRequest request) {
         Transaction transaction = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
-                .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
 
         transaction.setType(Transaction.Type.valueOf(request.getType()));
         transaction.setTitleDes(request.getTitleDes());
@@ -140,8 +142,9 @@ public class TransactionService {
 
     // ✅ Delete a transaction for a user
     public void deleteTransactionForUser(String userId, String transactionId) {
+        transactionRepository.findByIdAndAccountUserId(transactionId, userId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
         Transaction existing = transactionRepository.findByIdAndAccountUserId(transactionId, userId)
-                .orElseThrow(() -> new TransactionNotFoundException(transactionId, userId));
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
         Account account = accountRepo.findById(existing.getAccount().getId())
                 .orElseThrow(()->new AccountNotFoundException(existing.getAccount().getId()));
         // 3. Parse amounts safely

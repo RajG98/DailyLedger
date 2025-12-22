@@ -2,9 +2,7 @@ package com.ledger.backend.controller;
 
 import com.ledger.backend.dto.AccountRequest;
 import com.ledger.backend.dto.ApiResponse;
-import com.ledger.backend.dto.TransactionResponse;
 import com.ledger.backend.model.Account;
-import com.ledger.backend.model.Transaction;
 import com.ledger.backend.service.AccountService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -52,8 +50,7 @@ public class AccountController {
 
     @DeleteMapping("/{accountId}")
     public ResponseEntity<ApiResponse<Account>> deleteAccountById(@PathVariable String userId, @PathVariable String accountId) {
-        Account account = accountService.getAccountByIdForUser(userId, accountId);
-        if (account != null) accountService.deleteAccountForUser(userId, accountId);
+        accountService.deleteAccountForUser(userId, accountId);
         return new ResponseEntity<>(new ApiResponse<>(true, "account deleted", null), HttpStatus.NO_CONTENT);
     }
 }
