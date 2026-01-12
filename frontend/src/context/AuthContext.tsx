@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		sessionStorage.setItem("jwt_token", newToken);
 		sessionStorage.setItem("user_id", newUserId);
 
-		const expiryTime = new Date().getTime() + expiresIn * 1000;
+		const expiryTime = new Date().getTime() + expiresIn;
 		sessionStorage.setItem("token_expiry", expiryTime.toString());
 
 		navigate("/");
@@ -56,7 +56,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		const checkAuth = () => {
 			const storedToken = sessionStorage.getItem("jwt_token");
 			const expiry = sessionStorage.getItem("token_expiry");
-
+			// console.log("Now:", new Date(Date.now()));
+			// console.log("Expiry:", new Date(parseInt(expiry)));
 			// If no token, we are not authenticated.
 			if (!storedToken) {
 				setIsReady(true);

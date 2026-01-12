@@ -18,9 +18,6 @@ export const AuthPage: React.FC = () => {
 		setError("");
 
 		try {
-			// --- SIMULATING API CALL ---
-			// Replace this with your actual fetch/axios call
-			// const response = await fetch(isLoginView ? '/api/login' : '/api/signup', { ... });
 
 			console.log(`Submitting to ${isLoginView ? "Login" : "Signup"} API...`);
 
