@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 
 export const AuthPage: React.FC = () => {
 	const { login } = useAuth();
@@ -24,7 +25,13 @@ export const AuthPage: React.FC = () => {
 			console.log(`Submitting to ${isLoginView ? "Login" : "Signup"} API...`);
 
 			// Simulating a successful response delay
-			await new Promise((resolve) => setTimeout(resolve, 800));
+			await axios.post("http://localhost:8080/api/auth/login", { email: email, password: password })
+				.then((response)=> {
+					console.log(response);
+				})
+				.catch((err) =>{
+					console.log(err);
+				});
 
 			// Mock Response Data
 			const mockResponse = {
