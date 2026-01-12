@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())   // ✅ enable CORS
                 .authorizeHttpRequests(authorize->{
                     authorize.requestMatchers("/auth/**", "/otp/**", "/").permitAll();
-
                     authorize.anyRequest().authenticated();
                 })
                 .exceptionHandling(exceptionHandler->
@@ -49,7 +48,6 @@ public class SecurityConfig {
                 .sessionManagement(session->session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .build();
     }
 
@@ -69,7 +67,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
